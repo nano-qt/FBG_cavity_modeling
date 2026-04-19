@@ -1,190 +1,319 @@
-\documentclass[11pt]{article}
-\usepackage[margin=1in]{geometry}
-\usepackage{amsmath,amssymb}
+\documentclass[aps,pra, onecolumn,superscriptaddress,nopacs,floatfix, showkeys, notitlepage]{revtex4-1}
+%   \documentclass[10pt]{article}
 
-\title{Two-tone differential readout of a chirped FBG \\ {\large Dual-sideband (EOM) observable}}
-\author{}
-\date{}
+
+
+\usepackage{graphicx, color}
+\usepackage{amssymb, amsmath}
+\usepackage{times}
+\usepackage[normalem]{ulem}
+\usepackage{bbm}
+\usepackage{todonotes}
+\usepackage{mathtools}
+\usepackage{enumitem} 
+\usepackage{physics}
+\usepackage{braket}
+\usepackage{soul,xcolor}
+\usepackage{subcaption}
+\usepackage{bbold}
+\usepackage{wrapfig}
+\usepackage{multirow}
+
+\usepackage{booktabs}  % for \toprule, \midrule, and \bottomrule macros 
+\usepackage{tabularx}  % for 'tabularx' environment and 'X' column type
+%\usepackage[hang,small,bf]{caption}
+%\setlength{\captionmargin}{25pt}
+%\usepackage{dblfloatfix}
+\usepackage{tikz}
+%%%<
+\usepackage{verbatim}
+%\usepackage[active,tightpage,floats]{preview}
+%\PreviewEnvironment{tikzpicture}
+%\setlength\PreviewBorder{5pt}%
+%%%>
+\usetikzlibrary{arrows}
+\usetikzlibrary{positioning}
+% Nice captions.
+%\usepackage[hang,small,bf]{caption}
+%\setlength{\captionmargin}{25pt}
+
+% New commands to keep things tidy.
+%\newcommand{\ket}[1]{$\left|#1\right\rangle$}
+\newcommand{\Om}[1]{\small $\omega_{#1}$}
+\newcommand{\De}[1]{$\Delta_{#1}$}
+\newcommand{\Ga}[1]{$\Gamma_{#1}$}
+
+%\newcommand{\Om}[1]{\small $\omega_{#1}$}
+%\newcommand{\De}[1]{$\Delta_{#1}$}
+%\newcommand{\Ga}[1]{$\Gamma_{#1}$}
+
+\makeatletter
+\newcommand*\bigcdot{\mathpalette\bigcdot@{.5}}
+\newcommand*\bigcdot@[2]{\mathbin{\vcenter{\hbox{\scalebox{#2}{$\m@th#1\bullet$}}}}}
+\newcommand*\cav{(\bigcdot)}
+\newcommand*\ncav{(\bigcdot \bigcdot)}
+\makeatother
+
+%\newcommand{\ket}[1]{$\left|#1\right\rangle$}
+
+\usepackage{amsmath}
+\makeatletter
+\def\env@cases{%
+  \let\@ifnextchar\new@ifnextchar
+  \left\lbrace
+  \def\arraystretch{1.2}%
+  \array{l@{\quad}l@{}}% Formerly @{}l@{\quad}l@{}
+}
+
+
 
 \begin{document}
+\title{Note on Phase shift measurement of Chirped FBG with two-tone input}
+\author{NanoQT}
+\date{\today}
+
+\begin{abstract}
+\end{abstract}
+
+
 \maketitle
 
-\section{Setup}
+\section{Goal}
 
-A CW laser at optical frequency $\omega_c$ is phase-modulated by an EOM at
-frequency $\Delta$ with modulation index $m$. In the slowly-varying
-envelope (carrier frame),
-\begin{equation}
-    E_{\mathrm{in}}(t) = E_0 \, e^{\,i m \sin(2\pi \Delta t)}
-    = E_0 \sum_{k=-\infty}^{\infty} J_k(m)\, e^{\,i 2\pi k \Delta t}.
-\end{equation}
-For small $m$ we keep only $k \in \{-1,0,+1\}$ and use
-$J_{-1}(m) = -J_1(m)$:
-\begin{equation}
-    E_{\mathrm{in}}(t) \approx E_0\Big[
-    J_0(m) + J_1(m)\,e^{\,i 2\pi \Delta t}
-    - J_1(m)\,e^{-i 2\pi \Delta t}
-    \Big].
-\end{equation}
-The carrier is at detuning $\delta$ from the FBG resonance; the two
-sidebands are at $\delta \pm \Delta$.
 
-\section{Reflected field}
 
-The FBG is linear and time-invariant, so each spectral component acquires
-its own complex reflection coefficient:
-\begin{equation}
-    E_r(t) = E_0\Big[
-    J_0\, r(\delta)
-    + J_1\, r(\delta+\Delta)\, e^{\,i 2\pi \Delta t}
-    - J_1\, r(\delta-\Delta)\, e^{-i 2\pi \Delta t}
-    \Big],
-\end{equation}
-writing $J_k \equiv J_k(m)$ and leaving the common $e^{\,i\omega_c t}$
-factor implicit.
+For robust phase extraction, here we consider the passively stable scheme, without using the Michelson Interferometer (requiring thermal stability).
+Given the single-frequency FBG response $r(\delta)$ from the transfer-matrix
+simulator, reconstruct both the amplitude and the phase of the grating
+response from a \emph{realistic} dual-sideband (EOM) measurement at a
+finite modulation frequency $\Delta$.
 
-\section{Photodetector output}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\linewidth]{fig/schematics_chirp.png}
+  \caption{Schematic of characterizing phase shift of the chirped FBG. }
+  \label{fig:schematic_chirp}
+\end{figure}
+\section{Observable}
 
-A square-law detector responds to $P(t) = |E_r(t)|^2$. Let
-\begin{equation}
-    A = J_0\, r(\delta), \qquad
-    B = J_1\, r(\delta+\Delta), \qquad
-    C = -J_1\, r(\delta-\Delta),
-\end{equation}
-so that $E_r / E_0 = A + B\, e^{i 2\pi\Delta t} + C\, e^{-i 2\pi\Delta t}$.
-Multiplying out,
-\begin{equation}
-    \frac{P(t)}{|E_0|^2}
-    = \underbrace{|A|^2 + |B|^2 + |C|^2}_{\text{DC}}
-    + \underbrace{\big(A C^* + B A^*\big)\, e^{\,i 2\pi \Delta t}
-                 + \mathrm{c.c.}}_{\text{beat at } \Delta}
-    + \underbrace{B C^*\, e^{\,i 4\pi \Delta t} + \mathrm{c.c.}}_{\text{beat at } 2\Delta}.
-\end{equation}
-We keep only the component at $\Delta$.
-
-\section{The $\Delta$ beat}
-
-Substituting $A$, $B$, $C$,
-\begin{equation}
-    A C^* + B A^*
-    = -J_0 J_1\, r(\delta)\, r^*(\delta-\Delta)
-      + J_0 J_1\, r(\delta+\Delta)\, r^*(\delta).
-\end{equation}
-Define the (normalized) complex observable
+With EOM phase modulation at $\Delta$ and modulation index $m$, I/Q
+demodulation of the photodetector output at frequency $\Delta$ yields the
+complex envelope
 \begin{equation}
     \boxed{\;
     \mathcal{C}(\delta;\Delta)
-    \;\equiv\; r^*(\delta)\,r(\delta+\Delta) \;-\; r(\delta)\,r^*(\delta-\Delta)
+    \;\equiv\; r^*(\delta)\,r(\delta+\Delta)
+    \;-\; r(\delta)\,r^*(\delta-\Delta),
     \;}
+    \label{eq:C}
 \end{equation}
-so that
+up to the overall factor $|E_0|^2\, J_0(m)\, J_1(m)$. The derivation is in
+Appendix~\ref{app:derivation}. The experimentally measured amplitude is
 \begin{equation}
-    P(t) = P_{\mathrm{DC}} + 2\,|E_0|^2 J_0 J_1 \,
-    \Re\!\big[\mathcal{C}(\delta;\Delta)\, e^{\,i 2\pi \Delta t}\big]
-    + (\text{terms at } 2\Delta).
+    |S_{\mathrm{LI}}(\delta;\Delta)|
+    \;=\; |E_0|^2\, J_0(m)\, J_1(m)\, |\mathcal{C}(\delta;\Delta)|.
 \end{equation}
 
-\section{Demodulation}
+\section{Experimental procedure}
+\label{sec:procedure}
 
-Mixing $P(t)$ with an electrical LO at $\Delta$ and low-passing selects
-one quadrature of $\mathcal{C}$:
+\begin{figure}[h]
+  \centering
+  % NOTE: `#` in filenames can break `\includegraphics` (it uses `\edef` internally).
+  \includegraphics[width=0.8\linewidth]{fig/measurement_007.png}
+  \caption{Simulated four-stage measurement at $m = 1.8412$ (first zero of
+  $J_1'$, i.e.\ maximum of $J_1 \approx 0.582$) and
+  $\Delta = 100\,\mathrm{MHz}$: (1) triangular laser-frequency sweep
+  $\delta(t)$; (2) DC reflected $R$ and transmitted $T$ powers with the EOM
+  on, log scale; (3) same DC reflection together with the I/Q demod
+  amplitude $J_0 J_1\,|\mathcal{C}|$ on the same log axis, now fairly
+  comparable in units; (4) reconstructed phase $\widehat\phi(t)$ built by
+  integrating the symmetric finite-difference estimator
+  $\arg[r(\delta+\Delta)/r(\delta-\Delta)]/(2\Delta)$ along the sweep
+  trajectory.}
+  \label{fig:measurement}
+\end{figure}
+
+The four operational steps (matching the four panels of
+Fig.~\ref{fig:measurement}):
+
+\begin{enumerate}
+  \item \textbf{Sweep.} Triangular detuning $\delta(t)$ across the FBG band.
+  Sweep period ($\sim$ms) is many decades slower than $1/\Delta = 10\,\mathrm{ns}$,
+  so the RF response is quasi-static at every time point.
+
+  \item \textbf{Detect DC.} The low-pass photocurrent with modulation on is
+  \begin{equation}
+      R(\delta) \;=\; \sum_{k} J_k(m)^2\,|r(\delta+k\Delta)|^2,
+      \qquad
+      T(\delta) \;=\; \sum_{k} J_k(m)^2\,|t(\delta+k\Delta)|^2.
+      \label{eq:DC_mod}
+  \end{equation}
+  For $\Delta$ much smaller than the FBG features,
+  $R(\delta) \approx |r(\delta)|^2$ and $T(\delta) \approx |t(\delta)|^2$.
+
+  \item \textbf{Demodulate at $\Delta$.} Mix the photocurrent with an
+  electrical reference at $\Delta$ and low-pass: the complex envelope is
+  $|E_0|^2 J_0 J_1\,\mathcal{C}$. The panel plots its magnitude,
+  $|J_0 J_1\,\mathcal{C}|$, so it is in the same units as $R$ and $T$
+  (dimensionless, $|r|^2$-like).
+
+  \item \textbf{Reconstruct phase.} From the complex I/Q output, extract the
+  symmetric finite-difference estimator
+  \begin{equation}
+      \widehat{\phi'}(\delta)
+      \;=\; \frac{\arg r(\delta+\Delta) - \arg r(\delta-\Delta)}{2\,\Delta},
+      \qquad
+      \widehat{\phi}(\delta)
+      \;=\; \int_{\delta_0}^{\delta} \widehat{\phi'}(\delta')\,d\delta'.
+      \label{eq:phi_recon}
+  \end{equation}
+  Eq.~\eqref{eq:phi_recon} requires access to the individual sideband
+  phases, which I/Q demodulation provides through the coherent reference.
+  Leading-order error is
+  $\tfrac{1}{6}\Delta^2\,\phi'''(\delta) + O(\Delta^4)$
+  (see Appendix~\ref{app:smalldelta}).
+\end{enumerate}
+
+\section{Result: spectrum view}
+\label{sec:spectrum}
+
+\begin{figure}[h]
+\centering\includegraphics[width=0.7\linewidth]{fig/spectrum_007.png}
+  \caption{Transmission $|t|^2$ and demod amplitude
+  $J_0 J_1\,|\mathcal{C}|$ on log scale (left axis) and reconstructed phase
+  $\widehat{\phi}/\pi$ (right axis) as functions of detuning, all obtained
+  from a single $\Delta = 100\,\mathrm{MHz}$.}
+  \label{fig:spectrum}
+\end{figure}
+
+Remapping the time traces onto the frequency axis gives the FBG response in
+the usual spectroscopic form. Visible features:
+
+\begin{itemize}\setlength\itemsep{2pt}
+  \item The $\sim 100\,\mathrm{GHz}$-wide reflection band appears as the
+        rejection in $|t|^2$ down to $\sim 10^{-2}$, with characteristic
+        ripple from the finite chirped length.
+  \item The diffenretial amplitude $J_0 J_1\,|\mathcal{C}|$ exhibits the expected dispersive structure and modulation across the band.
+  \item The reconstructed phase $\widehat\phi$ accumulates roughly $50\pi$ across the band, consistent with the long chirped structure and with the exact $\arg r$ from the transfer-matrix calculation.
+\end{itemize}
+
+Because Eq.~\eqref{eq:phi_recon} is a symmetric finite difference, the
+systematic error is $\tfrac{1}{6}\Delta^2\,\phi'''(\delta) + O(\Delta^4)$:
+for $\Delta = 100\,\mathrm{MHz}$ vs. an $\sim 100\,\mathrm{GHz}$ FBG scale,
+the error sits well below the plot resolution.
+
+\appendix
+
+\section{Derivation of $\mathcal{C}$ (dual-sideband EOM)}
+\label{app:derivation}
+
+\subsection{Input field}
+
+A CW laser at $\omega_c$ phase-modulated by an EOM at $\Delta$, in the
+slowly-varying envelope frame:
 \begin{equation}
-    \big\langle P(t)\, e^{-i 2\pi \Delta t}\big\rangle_t
-    = |E_0|^2 J_0(m) J_1(m)\,\mathcal{C}(\delta;\Delta).
+    E_{\mathrm{in}}(t) \;=\; E_0\, e^{\,i m \sin(2\pi\Delta t)}
+    \;=\; E_0 \sum_{k=-\infty}^{\infty} J_k(m)\, e^{\,i 2\pi k\Delta t}.
 \end{equation}
-Equivalently, a Fourier transform of $P(t)$ evaluated at $+\Delta$ yields
-the same $\mathcal{C}$ up to window factors.
-
-\section{Experimental observable}
-
-The directly measured power at frequency $\Delta$ is
+Keeping $k \in \{-1,0,+1\}$ and using $J_{-1}(m) = -J_1(m)$,
 \begin{equation}
-    |\mathcal{C}(\delta;\Delta)|^2
-    = \big|\,r^*(\delta)\,r(\delta+\Delta) - r(\delta)\,r^*(\delta-\Delta)\,\big|^2.
+    E_{\mathrm{in}}(t) \;\approx\; E_0\!\left[J_0 + J_1\,e^{\,i 2\pi\Delta t} - J_1\,e^{-i 2\pi\Delta t}\right].
 \end{equation}
-The phase $\arg\mathcal{C}$ is obtained by I/Q demodulation.
+The carrier is at detuning $\delta$ from the FBG resonance; the sidebands
+are at $\delta\pm\Delta$.
 
-\section{Small-$\Delta$ expansion}
+\subsection{Reflected field and photodetection}
 
-Write $r(\delta) = R(\delta)\, e^{\,i\phi(\delta)}$ and Taylor expand
-$r(\delta\pm\Delta) = r \pm \Delta\, r' + \tfrac{1}{2}\Delta^2\, r'' + O(\Delta^3)$.
-Taking the conjugate on the $-\Delta$ side (conjugation and
-$d/d\delta$ commute for real $\delta$),
+Linearity of the FBG gives
+\begin{equation}
+    E_r(t) \;=\; E_0\!\left[J_0\,r(\delta)
+      + J_1\,r(\delta+\Delta)\,e^{\,i 2\pi\Delta t}
+      - J_1\,r(\delta-\Delta)\,e^{-i 2\pi\Delta t}\right].
+\end{equation}
+Writing $A = J_0\,r(\delta)$, $B = J_1\,r(\delta+\Delta)$,
+$C = -J_1\,r(\delta-\Delta)$ and computing $|E_r|^2/|E_0|^2$:
+\begin{equation}
+    \frac{P(t)}{|E_0|^2}
+    = \underbrace{|A|^2+|B|^2+|C|^2}_{\text{DC}}
+    + \left[\,(A C^* + B A^*)\,e^{\,i 2\pi\Delta t} + \text{c.c.}\,\right]
+    + \left[\,B C^*\,e^{\,i 4\pi\Delta t} + \text{c.c.}\,\right].
+\end{equation}
+The beat at $\Delta$ has complex coefficient
+\begin{equation}
+    A C^* + B A^*
+    = J_0 J_1\!\left[r^*(\delta)\,r(\delta+\Delta) - r(\delta)\,r^*(\delta-\Delta)\right]
+    = J_0 J_1\,\mathcal{C}(\delta;\Delta),
+\end{equation}
+giving Eq.~\eqref{eq:C}.
+
+\subsection{Demodulation}
+
+Mixing $P(t)$ with $e^{-i 2\pi\Delta t}$ and low-passing,
+\begin{equation}
+    \left\langle P(t)\,e^{-i 2\pi\Delta t}\right\rangle_t
+    \;=\; |E_0|^2\, J_0(m)\, J_1(m)\,\mathcal{C}(\delta;\Delta).
+\end{equation}
+Equivalently, a DFT of a simulated $P(t)$ at $+\Delta$ gives the same
+$\mathcal{C}$ up to window factors.
+
+\section{Small-$\Delta$ expansion and reconstruction error}
+\label{app:smalldelta}
+
+With $r(\delta) = R(\delta)\,e^{i\phi(\delta)}$ and
+$r(\delta\pm\Delta) = r \pm \Delta r' + \tfrac12 \Delta^2 r'' + O(\Delta^3)$,
 \begin{align}
     r^*(\delta)\,r(\delta+\Delta)
-    &= |r|^2 + \Delta\, r^* r' + \tfrac{1}{2}\Delta^2\, r^* r'' + O(\Delta^3), \\
+    &= |r|^2 + \Delta\, r^* r' + \tfrac{1}{2}\Delta^2\, r^* r'' + O(\Delta^3),\\
     r(\delta)\,r^*(\delta-\Delta)
     &= |r|^2 - \Delta\, r\, r'^{\,*} + \tfrac{1}{2}\Delta^2\, r\, r''^{\,*} + O(\Delta^3).
 \end{align}
-Subtracting,
+Subtracting and using $r^* r' = \tfrac{1}{2}\,d|r|^2/d\delta + i|r|^2\phi'$
+and $\Im(r^* r'') = d(R^2\phi')/d\delta$:
 \begin{equation}
-    \mathcal{C}(\delta;\Delta)
-    = \Delta\,\big(r^* r' + r\, r'^{\,*}\big)
-    + \tfrac{1}{2}\Delta^2\,\big(r^* r'' - r\, r''^{\,*}\big)
-    + O(\Delta^3).
-\end{equation}
-
-Using $r^* r' = \tfrac{1}{2}\,d|r|^2/d\delta + i\,|r|^2 \phi'$, the first
-bracket is purely real and the second purely imaginary:
-\begin{equation}
-    r^* r' + r\, r'^{\,*} = 2\,\Re(r^* r') = \frac{d|r|^2}{d\delta}, \qquad
-    r^* r'' - r\, r''^{\,*} = 2i\,\Im(r^* r'').
-\end{equation}
-A short calculation with $r = R e^{i\phi}$ gives
-$\Im(r^* r'') = 2 R R' \phi' + R^2 \phi'' = d(R^2 \phi')/d\delta$. Hence
-\begin{equation}
-\boxed{\;
     \mathcal{C}(\delta;\Delta)
     \;\approx\; \Delta\,\frac{d|r|^2}{d\delta}
-    \;+\; i\,\Delta^2\,\frac{d\!\left(|r|^2 \phi'\right)}{d\delta}
+    \;+\; i\,\Delta^2\,\frac{d(|r|^2\phi')}{d\delta}
     \;+\; O(\Delta^3).
-\;}
+    \label{eq:C_small}
 \end{equation}
-
-The parity $\mathcal{C}(-\Delta) = -\mathcal{C}^*(\Delta)$ forces odd
-coefficients to be real and even coefficients imaginary; the expansion
-above satisfies this.
+The parity $\mathcal{C}(-\Delta) = -\mathcal{C}^*(\Delta)$ fixes odd
+$\Delta$ coefficients real and even ones imaginary.
 
 \paragraph{Consequences.}
 \begin{itemize}\setlength\itemsep{2pt}
-  \item $\Re\mathcal{C}$ is \emph{leading order} in $\Delta$ and tracks
-        $d|r|^2/d\nu$ — the amplitude derivative. Classical PDH
-        error-signal shape.
-  \item $\Im\mathcal{C}$ is \emph{one order smaller} and mixes $\phi'$ with
-        the amplitude variation $R'$. It is not a clean proxy for
-        $d\phi/d\nu$ unless $R$ is approximately constant over the scan.
+  \item $\Re\mathcal{C}$ is leading in $\Delta$ and tracks $d|r|^2/d\nu$.
+  \item $\Im\mathcal{C}$ is one order smaller and entangles $\phi'$ with the
+        amplitude variation $R'/R$.
 \end{itemize}
-
-\section{Phase-slope reconstruction}
-
-The cleanest finite-$\Delta$ estimator of $d\phi/d\nu$ uses the raw phases
-at the two sideband frequencies directly (both accessible once $r$ is
-sampled, and experimentally via I/Q demodulation giving complex
-amplitudes rather than power):
-\begin{equation}
-\boxed{\;
-    \widehat{\phi'}(\delta)
-    \;=\; \frac{\arg r(\delta+\Delta) - \arg r(\delta-\Delta)}{2\,\Delta}
-    \;=\; \phi'(\delta) + \tfrac{1}{6}\Delta^2\,\phi'''(\delta) + O(\Delta^4).
-\;}
-\end{equation}
-Any branch jumps in $\arg r$ must be unwrapped before differencing.
-
-Using $\mathcal{C}$ alone is an option only in the regime
-$R'\!/R \ll \phi'$, where
-$\Im\mathcal{C}/(\Delta^2\,|r|^2) \approx \phi'(\delta) + \phi'\,R'/R \to \phi'$.
+Hence extracting $d\phi/d\nu$ from $\mathcal{C}$ directly requires the
+assumption $R' \ll R\phi'$. The symmetric finite-difference estimator in
+Eq.~\eqref{eq:phi_recon} bypasses the issue by using the raw phases
+$\arg r(\delta\pm\Delta)$ returned by the I/Q demodulator; its leading
+error is $\tfrac{1}{6}\Delta^2\phi'''(\delta) + O(\Delta^4)$.
 
 \section{Implementation notes}
+\label{app:impl}
 
 \begin{itemize}\setlength\itemsep{2pt}
-  \item $r$ is stored on a detuning grid; off-grid $r(\delta\pm\Delta)$
-        is evaluated by complex linear interpolation (real and imaginary
-        parts independently).
-  \item Scan $\delta \in [\delta_\min + \Delta,\;\delta_\max - \Delta]$ to
-        keep both sidebands in-band; outside this range truncate.
-  \item The overall prefactor $|E_0|^2 J_0(m) J_1(m)$ is absorbed into
-        normalization; only the $\delta$- and $\Delta$-dependence of
-        $\mathcal{C}$ matters.
+  \item $r$ is sampled on a finite detuning grid; off-grid
+        $r(\delta\pm\Delta)$ is obtained by \emph{polar} interpolation
+        (magnitude and unwrapped phase separately). Linear Re/Im
+        interpolation chords across the complex-plane arc between grid
+        samples and produces spurious amplitude ripple at the grid rate.
+  \item Scan $\delta \in [\delta_{\min} + |\Delta|,\; \delta_{\max} - |\Delta|]$
+        so both sidebands stay in-band; truncate outside this range.
+  \item The overall factor $|E_0|^2 J_0(m) J_1(m)$ is a scalar amplitude;
+        only the $\delta$- and $\Delta$-dependence of $\mathcal{C}$ carries
+        physics.
+  \item $m = 1.8412$ (first zero of $J_1'$) maximizes $|J_1|\approx 0.582$.
+        At this $m$ the higher-order sidebands ($J_2, J_3$) are
+        non-negligible and the $\pm 1$-only truncation used in the derivation
+        is an approximation. For a quantitative match include $\pm 2$
+        sidebands explicitly in the beat expansion.
+  \item The DC panel uses $\sum_k J_k^2\,|x|^2$ for both $R$ and $T$ so the
+        photodetector level is correct at arbitrary $m$, independent of the
+        $\pm 1$-only truncation used for the beat.
 \end{itemize}
 
 \end{document}
